@@ -4,11 +4,12 @@ use im::Vector;
 #[derive(Clone, Data, Lens, Default)]
 pub struct AppState {
     pub characters: Vector<Character>,
+    pub new_character: String,
 }
 
 #[derive(Clone, Data, Lens, Default)]
 pub struct Character {
-    name: String,
-    age: u32,
-    health: u32,
+    pub name: String,
+    pub age: u32,
+    pub health: u32,
 }
