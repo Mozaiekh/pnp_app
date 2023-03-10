@@ -1,4 +1,4 @@
-use druid::{Widget, WidgetExt, Env, EventCtx, Menu, MenuItem, Point, Event, Code};
+use druid::{Widget, WidgetExt, Env, EventCtx, Menu, MenuItem, Point, Event, Code, Color};
 use druid::widget::{Label, Flex, TextBox, Button, List, Padding, Controller};
 
 use crate::data::{AppState, Character};
@@ -33,6 +33,7 @@ pub fn ui_builder() -> impl Widget<AppState> {
     let character_list = Flex::column()
         .with_child(Padding::new(5.0, Label::new("Character List")))
         .with_child(List::new(|| {
+            let bg = Color::rgba8(0, 0, 0, 50);
             Flex::row()
                 .with_child(Label::new(|data: &Character, _: &Env| data.name.clone() ))
                 .with_child(Label::new(|data: &Character, _: &Env| data.age.to_string() ))
@@ -46,7 +47,7 @@ pub fn ui_builder() -> impl Widget<AppState> {
                             main_data.characters.remove(location);
                         }));
                     ctx.show_context_menu(menu, Point::new(0.0, 0.0))
-                }))
+                })).background(bg)
         }).lens(AppState::characters)
     );
 
