@@ -23,39 +23,59 @@ pub fn ui_builder() -> impl Widget<AppState> {
                         // let age: u32 = data.input_character_age.clone().parse().unwrap();
 
                         data.chargen_name = "".to_string();
-                        data.characters.push_back(Character {name, age: 20, health: 100});
+                        data.characters.push_back(Character {
+                            name,
+                            age: 20,
+                            sex: 'm',
+                            race: "Dwarf".to_string(),
+                            action: 15,
+                            knowledge: 15,
+                            social: 10,
+                            health: 100,
+                        });
                     }
                 })
             ))
             .with_child(Saver {})
         );
 
-    let character_list = Flex::column()
-        .with_child(Padding::new(5.0, Label::new("Character List")))
-        .with_child(List::new(|| {
-            let bg = Color::rgba8(0, 0, 0, 50);
-            Flex::row()
-                .with_child(Label::new(|data: &Character, _: &Env| data.name.clone() ))
-                .with_child(Label::new(|data: &Character, _: &Env| data.age.to_string() ))
-                .with_child(Label::new(|data: &Character, _: &Env| data.health.to_string() ))
-                .with_flex_spacer(0.1)
-                .with_child(Button::new("...").on_click(|ctx: &mut EventCtx, data: &mut Character, _env| {
-                    let data_clone = data.clone();
-                    let menu: Menu<AppState> = Menu::empty()
-                        .entry(MenuItem::new("Remove").on_activate(move |_ctx, main_data: &mut AppState, _env| {
-                            let location = main_data.characters.index_of(&data_clone).unwrap();
-                            main_data.characters.remove(location);
-                        }));
-                    ctx.show_context_menu(menu, Point::new(0.0, 0.0))
-                })).background(bg)
-        }).lens(AppState::characters)
-    );
+    let character_list = List::new(|| {
+        let bg = Color::rgba8(0, 0, 0, 50);
+        Flex::row()
+            .with_child(Flex::column()
+                .with_child(Flex::row()
+                    .with_child(Label::new(|data: &Character, _: &Env| data.name.clone() ))
+                    .with_child(Label::new(|data: &Character, _: &Env| data.sex.to_string() ))
+                    .with_child(Label::new(|data: &Character, _: &Env| data.age.to_string() ))
+                    .with_flex_spacer(0.1)
+                )
+                .with_child(Flex::row()
+                    .with_child(Label::new(|data: &Character, _: &Env| data.race.clone()))
+                    .with_flex_spacer(0.1)
+                )
+                .with_child(Flex::row()
+                    .with_child(Label::new(|data: &Character, _: &Env| data.action.to_string() ))
+                    .with_child(Label::new(|data: &Character, _: &Env| data.knowledge.to_string() ))
+                    .with_child(Label::new(|data: &Character, _: &Env| data.social.to_string() ))
+                    .with_flex_spacer(0.1)
+                ).fix_width(350.0).padding(5.0)
+            ).with_flex_spacer(0.1)
+            .with_child(Button::new("...").on_click(|ctx: &mut EventCtx, data: &mut Character, _env| {
+                let data_clone = data.clone();
+                let menu: Menu<AppState> = Menu::empty()
+                    .entry(MenuItem::new("Remove").on_activate(move |_ctx, main_data: &mut AppState, _env| {
+                        let location = main_data.characters.index_of(&data_clone).unwrap();
+                        main_data.characters.remove(location);
+                    }));
+                ctx.show_context_menu(menu, Point::new(0.0, 0.0))
+            })).fix_width(400.0).background(bg).padding(5.0)
+    }).lens(AppState::characters);
 
     let characters_tabs = Tabs::new()
         .with_axis(Axis::Horizontal)
         .with_edge(TabsEdge::Leading)
         .with_transition(TabsTransition::Instant)
-        .with_tab("View", character_list)
+        .with_tab("View", Flex::column().with_flex_child(character_list, 1.0))
         .with_tab("New", character_creation)
         .with_tab_index(0);
 
@@ -90,7 +110,16 @@ impl<W: Widget<AppState>> Controller<AppState, W> for Enter {
                     // let age: u32 = data.input_character_age.clone().parse().unwrap();
 
                     data.chargen_name = "".to_string();
-                    data.characters.push_back(Character {name, age: 20, health: 100});
+                    data.characters.push_back(Character {
+                        name,
+                        age: 20,
+                        sex: 'm',
+                        race: "Dwarf".to_string(),
+                        action: 15,
+                        knowledge: 15,
+                        social: 10,
+                        health: 100,
+                    });
                 }
             }
         }

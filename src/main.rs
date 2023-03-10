@@ -1,5 +1,5 @@
 use data::AppState;
-use druid::{WindowDesc, AppLauncher, Color};
+use druid::{WindowDesc, AppLauncher, Color, theme};
 use druid::theme::{BUTTON_DARK, BUTTON_LIGHT, WINDOW_BACKGROUND_COLOR};
 use im::Vector;
 use saver::read_stored;
@@ -25,11 +25,16 @@ fn main() {
         ..Default::default()
     };
 
+    // load and use a custom font
+    let data = include_bytes!("../assets/iosevka.ttc");
+    let font = druid::Value::Font::try_from_bytes(data).unwrap();
+
     AppLauncher::with_window(main_window)
         .configure_env(|env, _state| {
             env.set(BUTTON_DARK, Color::rgba8(100, 100, 120, 0));
             env.set(BUTTON_LIGHT, Color::rgba8(100, 100, 100, 100));
-            env.set(WINDOW_BACKGROUND_COLOR, Color::rgba8(15, 17, 26, 0))
+            env.set(WINDOW_BACKGROUND_COLOR, Color::rgba8(15, 17, 26, 0));
+            env.set(theme::UI_FONT, font)
         })
         .launch(default_state)
         .expect("Failed to launch application");

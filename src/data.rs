@@ -13,5 +13,10 @@ pub struct AppState {
 pub struct Character {
     pub name: String,
     pub age: u32,
+    pub sex: char,
+    pub race: String,
+    pub action: u32,
+    pub knowledge: u32,
+    pub social: u32,
     pub health: u32,
 }
