@@ -1,5 +1,6 @@
 use druid::{Lens, Data};
 use im::Vector;
+use serde::{Serialize, Deserialize};
 
 #[derive(Clone, Data, Lens, Default)]
 pub struct AppState {
@@ -8,7 +9,7 @@ pub struct AppState {
     pub chargen_age: String,
 }
 
-#[derive(Clone, Data, Lens, Default, PartialEq, Eq)]
+#[derive(Clone, Data, Lens, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Character {
     pub name: String,
     pub age: u32,

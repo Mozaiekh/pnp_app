@@ -1,16 +1,20 @@
-use druid::{Widget, WidgetExt, Env, EventCtx, Menu, MenuItem, Point};
-use druid::widget::{Label, Flex, TextBox, Button, List};
+use druid::{Widget, WidgetExt, Env, EventCtx, Menu, MenuItem, Point, Event, Code};
+use druid::widget::{Label, Flex, TextBox, Button, List, Padding, Controller};
 
 use crate::data::{AppState, Character};
+use crate::saver::Saver;
 
 pub fn ui_builder() -> impl Widget<AppState> {
     let character_creation = Flex::column()
-        .with_child(Label::new("Character Creation"))
+        .with_child(Padding::new(5.0, Label::new("Character Creation")))
         .with_child(Flex::row()
-            .with_child(Label::new("Name: "))
-            .with_flex_child(TextBox::new().lens(AppState::chargen_name).expand_width(), 1.0)
-            .with_child(Button::new("->")
+            .with_child(Padding::new(5.0, Label::new("Name: ")))
+            .with_flex_child(TextBox::new().lens(AppState::chargen_name).expand_width().controller(Enter {}), 1.0)
+            .with_child(Padding::new(5.0, Button::new("->")
                 .on_click(|_ctx, data: &mut AppState, _env| {
+
+                    // !!! REFACTOR INTO input_checker() !!!
+
                     if data.chargen_name.trim() != "" {
                         let name = data.chargen_name.clone();
 
@@ -22,11 +26,12 @@ pub fn ui_builder() -> impl Widget<AppState> {
                         data.characters.push_back(Character {name, age: 20, health: 100});
                     }
                 })
-            )
+            ))
+            .with_child(Saver {})
         );
 
     let character_list = Flex::column()
-        .with_child(Label::new("Character List"))
+        .with_child(Padding::new(5.0, Label::new("Character List")))
         .with_child(List::new(|| {
             Flex::row()
                 .with_child(Label::new(|data: &Character, _: &Env| data.name.clone() ))
@@ -48,4 +53,48 @@ pub fn ui_builder() -> impl Widget<AppState> {
     Flex::column()
         .with_child(character_creation)
         .with_child(character_list)
+}
+
+
+// !!! IMPLEMENT GENERICS for Enter!!!
+
+struct Enter;
+
+impl<W: Widget<AppState>> Controller<AppState, W> for Enter {
+    fn event(&mut self, child: &mut W, ctx: &mut EventCtx, event: &druid::Event, data: &mut AppState, env: &Env) {
+        if let Event::KeyUp(key) = event {
+            if key.code == Code::Enter {
+
+                // !!! REFACTOR INTO input_checker() !!!
+
+                if data.chargen_name.trim() != "" {
+                    let name = data.chargen_name.clone();
+
+                    // !!! ERROR HANDLING !!!
+
+                    // let age: u32 = data.input_character_age.clone().parse().unwrap();
+
+                    data.chargen_name = "".to_string();
+                    data.characters.push_back(Character {name, age: 20, health: 100});
+                }
+            }
+        }
+
+        child.event(ctx, event, data, env)
+    }
+
+    fn lifecycle(
+        &mut self,
+        child: &mut W,
+        ctx: &mut druid::LifeCycleCtx,
+        event: &druid::LifeCycle,
+        data: &AppState,
+        env: &Env,
+    ) {
+        child.lifecycle(ctx, event, data, env)
+    }
+
+    fn update(&mut self, child: &mut W, ctx: &mut druid::UpdateCtx, old_data: &AppState, data: &AppState, env: &Env) {
+        child.update(ctx, old_data, data, env)
+    }
 }
