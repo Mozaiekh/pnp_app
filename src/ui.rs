@@ -1,5 +1,5 @@
 use druid::{Widget, WidgetExt, Env, EventCtx, Menu, MenuItem, Point, Event, Code, Color};
-use druid::widget::{Label, Flex, TextBox, Button, List, Padding, Controller};
+use druid::widget::{Label, Flex, TextBox, Button, List, Padding, Controller, Tabs, Axis, TabsEdge, TabsTransition};
 
 use crate::data::{AppState, Character};
 use crate::saver::Saver;
@@ -51,9 +51,23 @@ pub fn ui_builder() -> impl Widget<AppState> {
         }).lens(AppState::characters)
     );
 
-    Flex::column()
-        .with_child(character_creation)
-        .with_child(character_list)
+    let characters_tabs = Tabs::new()
+        .with_axis(Axis::Horizontal)
+        .with_edge(TabsEdge::Leading)
+        .with_transition(TabsTransition::Instant)
+        .with_tab("View", character_list)
+        .with_tab("New", character_creation)
+        .with_tab_index(0);
+
+    Tabs::new()
+        .with_axis(Axis::Vertical)
+        .with_edge(TabsEdge::Leading)
+        .with_transition(TabsTransition::Instant)
+        .with_tab("Characters", characters_tabs)
+        .with_tab("Abilities", Label::new("Abilities"))
+        .with_tab("Items", Label::new("Items"))
+        .with_tab_index(0)
+    
 }
 
 

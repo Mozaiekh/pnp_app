@@ -29,7 +29,7 @@ fn main() {
         .configure_env(|env, _state| {
             env.set(BUTTON_DARK, Color::rgba8(100, 100, 120, 0));
             env.set(BUTTON_LIGHT, Color::rgba8(100, 100, 100, 100));
-            env.set(WINDOW_BACKGROUND_COLOR, Color::rgba8(30, 32, 44, 0))
+            env.set(WINDOW_BACKGROUND_COLOR, Color::rgba8(15, 17, 26, 0))
         })
         .launch(default_state)
         .expect("Failed to launch application");
