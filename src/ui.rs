@@ -1,3 +1,5 @@
+#[allow(unused)]
+
 use druid::{Widget, WidgetExt, Env, EventCtx, Menu, MenuItem, Point, Event, Code, Color};
 use druid::widget::{Label, Flex, TextBox, Button, List, Padding, Controller, Tabs, Axis, TabsEdge, TabsTransition};
 
@@ -42,38 +44,7 @@ pub fn ui_builder() -> impl Widget<AppState> {
             )
             .with_child(Padding::new(5.0, Button::new("->")
                 .on_click(|_ctx, data: &mut AppState, _env| {
-
-                    // !!! REFACTOR INTO input_checker() !!!
-
-                    if data.chargen_name.trim() != "" && data.chargen_age.trim() != "" && data.chargen_sex.trim() != "" && data.chargen_race.trim() != "" && data.chargen_occupation.trim() != "" {
-                        let name = data.chargen_name.clone();
-                        let age: u32 = data.chargen_age.clone().parse().unwrap();
-                        let sex = data.chargen_sex.clone();
-                        let race = data.chargen_race.clone();
-                        let occupation = data.chargen_occupation.clone();
-    
-                        // !!! ERROR HANDLING !!!
-    
-                        // let age: u32 = data.input_character_age.clone().parse().unwrap();
-    
-                        data.chargen_name = "".to_string();
-                        data.chargen_age = "".to_string();
-                        data.chargen_sex = "".to_string();
-                        data.chargen_race = "".to_string();
-                        data.chargen_occupation = "".to_string();
-    
-                        data.characters.push_back(Character {
-                            name,
-                            age,
-                            sex,
-                            race,
-                            occupation,
-                            action: 15,
-                            knowledge: 15,
-                            social: 10,
-                            health: 100,
-                        });
-                    }
+                    chargen_processor(data)
                 }).fix_height(50.0)
             ))
             .with_child(Saver {})
@@ -84,20 +55,34 @@ pub fn ui_builder() -> impl Widget<AppState> {
         Flex::row()
             .with_child(Flex::column()
                 .with_child(Flex::row()
-                    .with_child(Label::new(|data: &Character, _: &Env| data.name.clone() ).with_text_color(color_picker("lime_green")))
-                    .with_child(Label::new(|data: &Character, _: &Env| data.sex.to_string() ))
-                    .with_child(Label::new(|data: &Character, _: &Env| data.age.to_string() ))
+                    .with_child(Label::new(|data: &Character, _: &Env| data.name.clone()))
+                    .with_child(Label::new(|data: &Character, _: &Env| data.sex.to_string())
+                        .with_text_color(color_picker("light_grey"))
+                    )
+                    .with_child(Label::new(|data: &Character, _: &Env| data.age.to_string())
+                        .with_text_color(color_picker("light_grey"))
+                    )
                     .with_flex_spacer(0.1)
                 )
                 .with_child(Flex::row()
-                    .with_child(Label::new(|data: &Character, _: &Env| data.race.clone()))
-                    .with_child(Label::new(|data: &Character, _: &Env| data.occupation.clone()))
+                    .with_child(Label::new(|data: &Character, _: &Env| data.race.clone())
+                        .with_text_color(color_picker("light_grey"))
+                    )
+                    .with_child(Label::new(|data: &Character, _: &Env| data.occupation.clone())
+                        .with_text_color(color_picker("light_grey"))
+                    )
                     .with_flex_spacer(0.1)
                 )
                 .with_child(Flex::row()
-                    .with_child(Label::new(|data: &Character, _: &Env| data.action.to_string() ))
-                    .with_child(Label::new(|data: &Character, _: &Env| data.knowledge.to_string() ))
-                    .with_child(Label::new(|data: &Character, _: &Env| data.social.to_string() ))
+                    .with_child(Label::new(|data: &Character, _: &Env| format!("H:{}", data.action))
+                    .with_text_color(color_picker("light_red"))
+                )
+                    .with_child(Label::new(|data: &Character, _: &Env| format!("W:{}", data.knowledge))
+                    .with_text_color(color_picker("light_blue"))
+                )
+                    .with_child(Label::new(|data: &Character, _: &Env| format!("S:{}", data.social))
+                        .with_text_color(color_picker("light_green"))
+                    )
                     .with_flex_spacer(0.1)
                 ).fix_width(350.0).padding(5.0)
             ).with_flex_spacer(0.1)
@@ -140,38 +125,7 @@ impl<W: Widget<AppState>> Controller<AppState, W> for Enter {
     fn event(&mut self, child: &mut W, ctx: &mut EventCtx, event: &druid::Event, data: &mut AppState, env: &Env) {
         if let Event::KeyUp(key) = event {
             if key.code == Code::Enter {
-
-                // !!! REFACTOR INTO input_checker() !!!
-
-                if data.chargen_name.trim() != "" && data.chargen_age.trim() != "" && data.chargen_sex.trim() != "" && data.chargen_race.trim() != "" && data.chargen_occupation.trim() != "" {
-                    let name = data.chargen_name.clone();
-                    let age: u32 = data.chargen_age.clone().parse().unwrap();
-                    let sex = data.chargen_sex.clone();
-                    let race = data.chargen_race.clone();
-                    let occupation = data.chargen_occupation.clone();
-
-                    // !!! ERROR HANDLING !!!
-
-                    // let age: u32 = data.input_character_age.clone().parse().unwrap();
-
-                    data.chargen_name = "".to_string();
-                    data.chargen_age = "".to_string();
-                    data.chargen_sex = "".to_string();
-                    data.chargen_race = "".to_string();
-                    data.chargen_occupation = "".to_string();
-
-                    data.characters.push_back(Character {
-                        name,
-                        age,
-                        sex,
-                        race,
-                        occupation,
-                        action: 15,
-                        knowledge: 15,
-                        social: 10,
-                        health: 100,
-                    });
-                }
+                chargen_processor(data)
             }
         }
 
@@ -194,10 +148,13 @@ impl<W: Widget<AppState>> Controller<AppState, W> for Enter {
     }
 }
 
-pub fn color_picker(color: &str) -> Color {
+fn color_picker(color: &str) -> Color {
     match color {
-        "dark_blue" => Color::rgba8(15, 17, 26, 100),
-        "lime_green" => Color::rgba8(90, 175, 75, 100),
+        "dark_blue" => Color::rgba8(15, 17, 26, 255),
+        "light_green" => Color::rgba8(207, 232, 138, 255),
+        "light_red" => Color::rgba8(255, 167, 110, 255),
+        "light_blue" => Color::rgba8(146, 178, 255, 255),
+        "light_grey" => Color::rgba8(161, 183, 190, 255),
         "red" => Color::RED,
         "green" => Color::GREEN,
         "blue" => Color::BLUE,
@@ -207,5 +164,42 @@ pub fn color_picker(color: &str) -> Color {
         "grey" => Color::GRAY,
         "purple" => Color::PURPLE,
         _ => Color::BLACK,
+    }
+}
+
+fn chargen_processor(data: &mut AppState) {
+    if data.chargen_name.trim() != "" && data.chargen_age.trim() != "" && data.chargen_sex.trim() != "" && data.chargen_race.trim() != "" && data.chargen_occupation.trim() != "" {
+        let name = data.chargen_name.clone();
+        let age: u32 = match data.chargen_age.clone().parse() {
+            Ok(num) => num,
+            Err(_) => {
+                eprintln!("Character age set to 0 because input was not a positive number");
+                0
+            },
+        };
+        let sex = data.chargen_sex.clone();
+        let race = data.chargen_race.clone();
+        let occupation = data.chargen_occupation.clone();
+
+        data.chargen_name = "".to_string();
+        data.chargen_age = "".to_string();
+        data.chargen_sex = "".to_string();
+        data.chargen_race = "".to_string();
+        data.chargen_occupation = "".to_string();
+
+        data.characters.push_back(Character {
+            name,
+            age,
+            sex,
+            race,
+            occupation,
+            action: 0,
+            knowledge: 0,
+            social: 0,
+            health: 100,
+        });
+
+        // display a notification for 3 seconds
+
     }
 }

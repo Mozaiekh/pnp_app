@@ -1,3 +1,5 @@
 /target
 /assets
 *.lock
+*.txt
+*.log
